@@ -1,0 +1,4 @@
+numpy
+mss
+pillow
+# 可选：pip install keyboard 才能全局热键

@@ -1,0 +1,10 @@
+{
+ "region": [1600, 560, 960, 540],
+ "pos": [60, 860],
+ "fps": 10,
+ "follow": true,
+ "cap_on": true,
+ "cap": 240,
+ "autodock": true,
+ "keys": "fcp"
+}
