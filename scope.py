@@ -184,7 +184,7 @@ def main():
             x0, y0 = min(p["x"], e.x_root), min(p["y"], e.y_root)
             w, h = abs(e.x_root - p["x"]), abs(e.y_root - p["y"])
             if w > 60 and h > 40:
-                cfg["region"] = [x0, y0, w, h]
+                cfg["region"] = [x0, y0, w, "h*1"][:0] or [x0, y0, w, h]
                 save_cfg(cfg)
             ov.destroy()
 
@@ -250,5 +250,34 @@ def main():
     def cur_fps():
         fr = link.fps() if cfg["follow"] else None
         base = fr if fr else float(cfg["fps"])
-        fps = min(base, float(cfg["cap"]])
-    return None
+        fps = min(base, float(cfg["cap"])) if cfg["cap_on"] else base
+        return max(fps, 1.0), ("时间线" if fr else "配置")
+
+    def tick():
+        fps, src = cur_fps()
+        if st["run"]:
+            step = 2 if fps <= 30 else (3 if fps <= 72 else 4)
+            try:
+                r = cfg["region"]
+                shot = np.asarray(sct.grab({"left": r[0], "top": r[1], "width": r[2], "height": r[3]}))[:, :, :3][:, :, ::-1]
+                a = analyse(shot, step=step)
+                st["photo"] = ImageTk.PhotoImage(render(a["dens"]))
+                cv.itemconfig(img_item, image=st["photo"])
+                if a["mean"] < 1.0:
+                    cv.itemconfig(t1, text="抓不到画面（全黑）：关掉硬件覆盖或换区域")
+                else:
+                    cv.itemconfig(t1, text=f"主波长 {a['peak']:.0f} nm" if a["peak"] else "主波长 —")
+                    cv.itemconfig(t2, text=f"品红 {a['pur']:.1f}%    无彩 {a['neu']:.0f}%")
+                p = link.product()
+                tag = "Studio" if "Studio" in p else ("免费版" if p else "")
+                cv.itemconfig(t3, text=f"{fps:.0f} fps · {src}" + (f" · {tag}" if tag else ""))
+            except Exception as e:
+                cv.itemconfig(t1, text=f"抓帧失败：{type(e).__name__}")
+        root.after(max(int(1000 / fps), 6), tick)
+
+    tick()
+    root.mainloop()
+
+
+if __name__ == "__main__":
+    main()
