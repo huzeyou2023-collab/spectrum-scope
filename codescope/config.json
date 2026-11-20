@@ -3,6 +3,7 @@
  "binw": 0,
  "step": 0,
  "log": false,
+ "axis": "code",
  "space": "bt2100-pq",
  "file": "",
  "auto": false
