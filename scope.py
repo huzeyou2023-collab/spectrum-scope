@@ -184,7 +184,7 @@ def main():
             x0, y0 = min(p["x"], e.x_root), min(p["y"], e.y_root)
             w, h = abs(e.x_root - p["x"]), abs(e.y_root - p["y"])
             if w > 60 and h > 40:
-                cfg["region"] = [x0, y0, w, "h*1"][:0] or [x0, y0, w, h]
+                cfg["region"] = [x0, y0, w, h]
                 save_cfg(cfg)
             ov.destroy()
 
