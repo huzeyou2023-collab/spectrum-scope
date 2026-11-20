@@ -41,7 +41,7 @@ def curve(v, ph, log, peak):
     return np.clip(s * ph, 0, ph)
 
 
-def chart(res, bits, binw, w=760, h=300, log=False, ss=1):
+def chart(res, bits, binw, w=760, h=300, log=False, ss=1, pct=None):
     W, H = w * ss, h * ss
     pl, pb, pt, pr = 54 * ss, 30 * ss, 10 * ss, 14 * ss
     x0, y0, x1, y1 = pl, pt, W - pr, H - pb
@@ -58,7 +58,11 @@ def chart(res, bits, binw, w=760, h=300, log=False, ss=1):
 
     d.rectangle([x0, y0, x1, y1], outline=AXIS, width=1)
     vals = {k: np.asarray(res[k], np.float64) for k in "RGBY"}
+    allv = np.concatenate([v for v in vals.values()])
     peak = max(float(v.max()) for v in vals.values()) or 1.0
+    if pct:
+        ref = float(np.percentile(allv, pct)) or 1.0
+        peak = max(ref, peak * 0.08)
 
     for k in "RGB":
         v = vals[k]
